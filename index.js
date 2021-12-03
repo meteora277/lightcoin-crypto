@@ -4,12 +4,18 @@ class Transaction {
     this.amount = amount;
     this.account = account;
   }
+  commit() {
+
+    if (this.account.balance + this.value > 0) {
+      this.time = new Date();
+      this.account.addTransaction(this);
+    } else {
+      console.log('Insufficient Funds');
+    }
+  }
 }
 class Withdrawal extends Transaction {
 
-  commit() {
-    this.account.balance -= this.value;
-  }
   get value() {
     return this.amount * -1;
   }
@@ -17,9 +23,7 @@ class Withdrawal extends Transaction {
 }
 class Deposit extends Transaction {
 
-  commit() {
-    this.account.balance += this.value;
-  }
+
   get value() {
     return this.amount;
   }
@@ -28,7 +32,17 @@ class Deposit extends Transaction {
 class Account {
   constructor(username) {
     this.username = username;
-    this.balance = 0;
+    this.transactions = [];
+
+  }
+  get balance() {
+    let _balance = 0;
+    this.transactions.forEach(transaction => _balance += transaction.value);
+    return _balance;
+  }
+
+  addTransaction(transaction) {
+    this.transactions.push(transaction);
   }
 }
 
@@ -38,7 +52,6 @@ class Account {
 // We use the code below to "drive" the application logic above and make sure it's working as expected
 
 const myAccount = new Account('snow-patrol');
-console.log(myAccount);
 
 let t1 = new Withdrawal(50.25, myAccount);
 t1.commit();
@@ -48,9 +61,9 @@ let t2 = new Withdrawal(9.99, myAccount);
 t2.commit();
 console.log('Transaction 2:', t2);
 
-
 let t3 = new Deposit(120.00, myAccount);
 t3.commit();
 console.log('Transaction 3:', t3);
 
-console.log('Balance:', myAccount.balance);
+// console.log('Balance:', myAccount.balance);
+console.log(myAccount.balance);
